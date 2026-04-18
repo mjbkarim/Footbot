@@ -5,7 +5,9 @@ import json
 import os
 import pytz
 
-app = Flask(__name__)
+import os
+app = Flask(__name__, template_folder=os.path.dirname(os.path.abspath(__file__)))
+
 CORS(app)
 
 # ─── Configuration ───────────────────────────────────────────────
