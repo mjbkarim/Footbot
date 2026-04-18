@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — FootBot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#080f08;color:#e2f0e2;font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;}
+    .card{background:#0f1f0f;border:1px solid #1a3a1a;border-radius:16px;padding:32px 24px;width:100%;max-width:340px;}
+    h1{font-family:'Bebas Neue',sans-serif;font-size:32px;color:#4ade80;letter-spacing:2px;margin-bottom:4px;}
+    p{font-size:12px;color:#5a7a5a;margin-bottom:20px;text-transform:uppercase;letter-spacing:1px;}
+    input{width:100%;background:#080f08;border:1.5px solid #1a3a1a;border-radius:10px;padding:12px 14px;color:#e2f0e2;font-size:15px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:12px;}
+    input:focus{border-color:#16a34a;}
+    button{width:100%;background:linear-gradient(135deg,#16a34a,#059669);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+    .err{color:#f87171;font-size:13px;margin-top:8px;text-align:center;}
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>⚙️ ADMIN</h1>
+  <p>Accès réservé à l'organisateur</p>
+  <input type="password" id="pwd" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')login()">
+  <button onclick="login()">🔓 Accéder</button>
+  <div class="err" id="err"></div>
+</div>
+<script>
+  async function login(){
+    const pwd=document.getElementById('pwd').value;
+    const r=await fetch('/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
+    const d=await r.json();
+    if(d.ok)location.href='/admin';
+    else document.getElementById('err').textContent=d.msg;
+  }
+</script>
+</body>
+</html>

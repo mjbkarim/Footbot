@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⚙️ Admin FootBot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#080f08;color:#e2f0e2;font-family:'DM Sans',sans-serif;min-height:100vh;padding:20px 16px 40px;}
+    .container{max-width:500px;margin:0 auto;}
+    .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+    h1{font-family:'Bebas Neue',sans-serif;font-size:32px;color:#4ade80;letter-spacing:2px;}
+    .card{background:#0f1f0f;border:1px solid #1a3a1a;border-radius:14px;padding:16px;margin-bottom:12px;}
+    .ct{font-size:11px;font-weight:700;color:#5a7a5a;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+    .stat-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #1a3a1a;font-size:13px;}
+    .stat-row:last-child{border:none;}
+    .stat-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#4ade80;}
+    .row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+    .lbl{font-size:12px;color:#5a7a5a;min-width:60px;}
+    input,select{flex:1;background:#080f08;border:1.5px solid #1a3a1a;border-radius:8px;padding:9px 12px;color:#e2f0e2;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;}
+    input:focus,select:focus{border-color:#16a34a;}
+    .ab{width:100%;padding:11px;border-radius:9px;border:none;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;margin-bottom:8px;}
+    .ab:hover{filter:brightness(1.15);}
+    .ab:last-child{margin:0;}
+    .ab-green{background:linear-gradient(135deg,#16a34a,#059669);color:#fff;}
+    .ab-amber{background:linear-gradient(135deg,#d97706,#b45309);color:#fff;}
+    .ab-red{background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;}
+    .ab-blue{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;}
+    .ab-ghost{background:transparent;color:#4ade80;border:1.5px solid #1a3a1a;}
+    .p-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #1a3a1a;font-size:13px;}
+    .p-row:last-child{border:none;}
+    .p-name{flex:1;font-weight:600;}
+    .p-time{font-size:11px;color:#5a7a5a;font-family:monospace;}
+    .p-tag{font-size:10px;padding:3px 8px;border-radius:8px;font-weight:700;}
+    .p-tag.in{background:#16a34a20;color:#4ade80;}
+    .p-tag.confirmed{background:#2563eb20;color:#60a5fa;}
+    .p-tag.wait{background:#f59e0b20;color:#fbbf24;}
+    .p-tag.out{background:#ef444420;color:#f87171;}
+    .btn-sm{padding:4px 10px;border-radius:6px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+    .btn-remove{background:#ef444420;color:#f87171;}
+    .link-box{background:#080f08;border-radius:8px;padding:10px 12px;font-size:12px;font-family:monospace;color:#4ade80;word-break:break-all;margin-bottom:10px;border:1px solid #1a3a1a;}
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:#0f1f0f;border:1px solid #1a3a1a;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;transition:transform .3s;z-index:100;}
+    .toast.show{transform:translateX(-50%) translateY(0);}
+    .toast.s{color:#4ade80;border-color:#16a34a44;}
+    .toast.e{color:#f87171;border-color:#ef444444;}
+    .toast.w{color:#fbbf24;border-color:#f59e0b44;}
+    .section-tabs{display:flex;gap:4px;margin-bottom:12px;}
+    .stab{flex:1;padding:7px;text-align:center;font-size:11px;font-weight:700;cursor:pointer;border-radius:8px;background:#162616;color:#5a7a5a;transition:all .2s;}
+    .stab.active{background:#16a34a;color:#fff;}
+    .stab-content{display:none;}
+    .stab-content.active{display:block;}
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="hdr">
+    <div>
+      <h1>⚙️ ADMIN</h1>
+      <div style="font-size:11px;color:#5a7a5a">{{ now }}</div>
+    </div>
+    <button class="ab-ghost ab" style="width:auto;padding:8px 14px;font-size:12px" onclick="doLogout()">🚪 Déco</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="card">
+    <div class="ct">📊 Statut</div>
+    <div class="stat-row"><span>Phase</span><span style="font-size:12px;font-weight:700;color:#4ade80">{{ match.phase }}{% if match.cancelled %} — ANNULÉ{% endif %}</span></div>
+    <div class="stat-row"><span>Match</span><span>{{ match.day }} {{ match.date }}</span></div>
+    <div class="stat-row"><span>Sélectionnés</span><span class="stat-val">{{ selected|length }}/14</span></div>
+    <div class="stat-row"><span>Liste d'attente</span><span class="stat-val" style="color:#fbbf24">{{ waiting|length }}</span></div>
+    <div class="stat-row"><span>Joueurs inscrits</span><span class="stat-val" style="color:#60a5fa">{{ players|length }}</span></div>
+  </div>
+
+  <!-- Sections -->
+  <div class="card">
+    <div class="section-tabs">
+      <div class="stab active" onclick="switchTab('match')">🏟️ Match</div>
+      <div class="stab" onclick="switchTab('players')">👥 Joueurs</div>
+      <div class="stab" onclick="switchTab('accounts')">🔑 Comptes</div>
+    </div>
+
+    <!-- Match tab -->
+    <div class="stab-content active" id="tab-match">
+      <div class="row">
+        <span class="lbl">Jour</span>
+        <select id="aDay"><option>Lundi</option><option>Jeudi</option></select>
+      </div>
+      <div class="row">
+        <span class="lbl">Date</span>
+        <input type="text" id="aDate" placeholder="Ex: 21 avril">
+      </div>
+      <button class="ab ab-green" onclick="adminOpen()">▶ Ouvrir inscriptions</button>
+      <button class="ab ab-amber" onclick="adminConfirm()">⏰ Phase confirmation</button>
+      <button class="ab ab-red" onclick="adminClose()">🔒 Clôturer le match</button>
+      <button class="ab ab-ghost" onclick="adminReset()">🗑 Réinitialiser match</button>
+    </div>
+
+    <!-- Players tab -->
+    <div class="stab-content" id="tab-players">
+      {% if selected|length > 0 %}
+        <div style="font-size:11px;color:#5a7a5a;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">✅ Sélectionnés</div>
+        {% for p in selected %}
+        <div class="p-row">
+          <div class="p-name">{{ p.name }} <span style="color:#5a7a5a;font-size:11px">({{ p.username }})</span></div>
+          <div class="p-time">{{ p.time[:5] }}</div>
+          <div class="p-tag {% if p.status == 'confirmed' %}confirmed{% else %}in{% endif %}">{{ p.status.upper() }}</div>
+          <button class="btn-sm btn-remove" onclick="removePlayer('{{ p.username }}', '{{ p.name }}')">✕</button>
+        </div>
+        {% endfor %}
+      {% endif %}
+      {% if waiting|length > 0 %}
+        <div style="font-size:11px;color:#fbbf24;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:10px 0 8px">⏳ Attente</div>
+        {% for p in waiting %}
+        <div class="p-row">
+          <div class="p-name">{{ p.name }} <span style="color:#5a7a5a;font-size:11px">({{ p.username }})</span></div>
+          <div class="p-time">{{ p.time[:5] }}</div>
+          <div class="p-tag wait">ATTENTE</div>
+          <button class="btn-sm btn-remove" onclick="removePlayer('{{ p.username }}', '{{ p.name }}')">✕</button>
+        </div>
+        {% endfor %}
+      {% endif %}
+      {% if selected|length == 0 and waiting|length == 0 %}
+        <div style="text-align:center;color:#5a7a5a;font-size:13px;padding:16px">Aucun inscrit pour ce match</div>
+      {% endif %}
+    </div>
+
+    <!-- Accounts tab -->
+    <div class="stab-content" id="tab-accounts">
+      <div style="font-size:11px;color:#5a7a5a;margin-bottom:10px">{{ players|length }} compte(s) enregistré(s)</div>
+      {% for username, p in players.items() %}
+      <div class="p-row">
+        <div class="p-name">{{ p.name }} <span style="color:#5a7a5a;font-size:11px">@{{ username }}</span></div>
+        <button class="btn-sm" style="background:#f59e0b20;color:#fbbf24" onclick="resetPin('{{ username }}', '{{ p.name }}')">🔑 PIN</button>
+        <button class="btn-sm btn-remove" onclick="deleteAccount('{{ username }}', '{{ p.name }}')">🗑</button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Lien -->
+  <div class="card">
+    <div class="ct">📲 Lien WhatsApp</div>
+    <div class="link-box" id="siteLink">{{ request.host_url }}</div>
+    <button class="ab ab-ghost" onclick="copyLink()">📋 Copier le lien</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function showToast(msg,type='s'){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.className=`toast ${type} show`;
+    setTimeout(()=>t.classList.remove('show'),3000);
+  }
+  function switchTab(tab){
+    document.querySelectorAll('.stab').forEach((t,i)=>t.classList.toggle('active',['match','players','accounts'][i]===tab));
+    document.querySelectorAll('.stab-content').forEach((c,i)=>c.classList.toggle('active',['tab-match','tab-players','tab-accounts'][i]==='tab-'+tab));
+  }
+  async function post(url,body={}){
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    return r.json();
+  }
+  async function adminOpen(){
+    const day=document.getElementById('aDay').value;
+    const date=document.getElementById('aDate').value;
+    const d=await post('/admin/open',{day,date});
+    showToast(d.msg,d.ok?'s':'e');
+    if(d.ok)setTimeout(()=>location.reload(),800);
+  }
+  async function adminConfirm(){
+    if(!confirm('Passer en phase de confirmation ?'))return;
+    const d=await post('/admin/confirm');
+    showToast(d.msg,d.ok?'s':'e');
+    if(d.ok)setTimeout(()=>location.reload(),800);
+  }
+  async function adminClose(){
+    if(!confirm('Clôturer le match ?'))return;
+    const d=await post('/admin/close');
+    showToast(d.msg,d.ok?'s':'e');
+    if(d.ok)setTimeout(()=>location.reload(),800);
+  }
+  async function adminReset(){
+    if(!confirm('Réinitialiser le match ?'))return;
+    const d=await post('/admin/reset');
+    showToast(d.msg,d.ok?'s':'e');
+    if(d.ok)setTimeout(()=>location.reload(),800);
+  }
+  async function removePlayer(username,name){
+    if(!confirm(`Retirer ${name} de la liste ?`))return;
+    const d=await post('/admin/remove_player',{username});
+    showToast(d.msg,d.ok?'w':'e');
+    if(d.ok)setTimeout(()=>location.reload(),800);
+  }
+  async function resetPin(username,name){
+    const pin=prompt(`Nouveau PIN pour ${name} (4 chiffres) :`);
+    if(!pin)return;
+    const d=await post('/admin/reset_pin',{username,pin});
+    showToast(d.msg,d.ok?'s':'e');
+  }
+  async function deleteAccount(username,name){
+    if(!confirm(`Supprimer le compte de ${name} ?`))return;
+    const d=await post('/admin/delete_account',{username});
+    showToast(d.msg,d.ok?'w':'e');
+    if(d.ok)setTimeout(()=>location.reload(),800);
+  }
+  async function doLogout(){
+    await post('/admin/logout');
+    location.href='/admin/login';
+  }
+  function copyLink(){
+    navigator.clipboard.writeText(document.getElementById('siteLink').textContent.trim());
+    showToast('Lien copié !','s');
+  }
+</script>
+</body>
+</html>
